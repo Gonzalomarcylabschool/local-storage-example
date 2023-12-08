@@ -1,20 +1,31 @@
 import './style.css'
-const addItems = document.querySelector('.add-items');
-const itemsList = document.querySelector('.plates');
-const items = JSON.parse(localStorage.getItem('items')) || [];
+import { getEl, getUserLocation } from './modules/utils.js';
+import { getList, setList, addNewItem } from './modules/localstorage-mods.js';
+
+const { latitude, longitude } = getUserLocation();
+const items = getList('items') || [];
+
+const localTaps = document.createElement('div')
+localTaps.innerHTML = `
+<a target="_blank" href="https://www.google.com/maps/search/tapas/@${latitude},${longitude},11z/data=!3m1!4b1?entry=ttu"id="localTapas">Check out Tapas around you</a>
+`;
+getEl('.wrapper').append(localTaps);
 
 const addItem = (e) => {
   e.preventDefault();
-  const text = (this.querySelector('[name=item]')).value;
+
+  const formObj = Object.fromEntries(new FormData(e.target));
+  const text = formObj.item
   const item = {
     text,
     done: false
   };
 
   items.push(item);
-  populateList(items, itemsList);
-  localStorage.setItem('items', JSON.stringify(items));
-  this.reset();
+  populateList(items, getEl('.plates'));
+  setList(items);
+
+  e.target.reset();
 }
 
 const populateList = (plates = [], platesList) => {
@@ -33,11 +44,19 @@ const toggleDone = (e) => {
   const el = e.target;
   const index = el.dataset.index;
   items[index].done = !items[index].done;
-  localStorage.setItem('items', JSON.stringify(items));
-  populateList(items, itemsList);
+  setList(items);
+  populateList(items, getEl('.plates'));
 }
 
-addItems.addEventListener('submit', addItem);
-itemsList.addEventListener('click', toggleDone);
 
-populateList(items, itemsList);
+
+
+const main = () => {
+
+  populateList(items, getEl('.plates'));
+  getEl('#add-items').addEventListener('submit', addItem);
+  getEl('.plates').addEventListener('click', toggleDone);
+
+}
+
+main();
