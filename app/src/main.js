@@ -5,6 +5,7 @@ const items = JSON.parse(localStorage.getItem('items')) || [];
 
 const addItem = (e) => {
   e.preventDefault();
+  console.log(e.target);
   const text = (this.querySelector('[name=item]')).value;
   const item = {
     text,
